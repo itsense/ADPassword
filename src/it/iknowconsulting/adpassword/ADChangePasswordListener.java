@@ -38,7 +38,9 @@ public class ADChangePasswordListener extends ChangePasswordListener {
             System.setProperty("javax.net.ssl.trustStore", "/opt/zimbra/java/jre/lib/security/cacerts");
             System.setProperty("javax.net.debug", "all");
             ADConnection adc = new ADConnection(domain);
-            adc.updatePassword(acct.getDisplayName(), newPassword);
+            // Originalmente é passado o Nome de exibição, mas preciso do uid
+            //adc.updatePassword(acct.getDisplayName() , newPassword);
+            adc.updatePassword(acct.getUid(), newPassword);
         } catch (NamingException ex) {
             throw AccountServiceException.PERM_DENIED(ex.toString());
         }

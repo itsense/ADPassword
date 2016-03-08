@@ -34,6 +34,7 @@ import javax.naming.directory.DirContext;
 import javax.naming.directory.InitialDirContext;
 import javax.naming.directory.ModificationItem;
 import javax.naming.directory.SearchControls;
+import javax.naming.directory.SearchResult;
 
 public class ADConnection {
 
@@ -57,6 +58,7 @@ public class ADConnection {
     }
 
     public void updatePassword(String username, String password) throws NamingException {
+        NamingEnumeration userfield;
         String quotedPassword = "\"" + password + "\"";
         char unicodePwd[] = quotedPassword.toCharArray();
         byte pwdArray[] = new byte[unicodePwd.length * 2];
@@ -66,7 +68,15 @@ public class ADConnection {
         }
         ModificationItem[] mods = new ModificationItem[1];
         mods[0] = new ModificationItem(DirContext.REPLACE_ATTRIBUTE, new BasicAttribute("UnicodePwd", pwdArray));
-        ldapContext.modifyAttributes("cn=" + username + "," + authLdapSearchBase, mods);
+
+        //ldapContext.modifyAttributes("cn=" + username + "," + authLdapSearchBase, mods);
+        
+        NamingEnumeration users = fetchUser(username);
+        
+        SearchResult user = (SearchResult)users.nextElement();
+        String RDN = user.getNameInNamespace();
+        
+        ldapContext.modifyAttributes(RDN, mods);
     }
 
     NamingEnumeration get(String searchFilter) throws NamingException {
